@@ -1,4 +1,4 @@
-class User
+ class User
   # Validations
   validates :email, :password_digest, :session_token, presence: true, uniqueness: true,
   valdiates :password, length: { minimum: 6, allow_nil: true }
