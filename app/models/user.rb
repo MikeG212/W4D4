@@ -1,9 +1,11 @@
- class User
+ class User < ApplicationRecord
   # Validations
-  validates :email, :password_digest, :session_token, presence: true, uniqueness: true,
-  valdiates :password, length: { minimum: 6, allow_nil: true }
+  validates :email, presence: true, uniqueness: true
+  validates :password, length: { minimum: 6, allow_nil: true }
+  validates :password_digest, presence: true, uniqueness: true
+  validates :session_token, presence: true, uniqueness: true
 
-  after_initialize: ensure_session_token
+  after_initialize :ensure_session_token
 
   #Associations
 
@@ -14,17 +16,16 @@
 
   def password=(pw)
     @password = pw
-    self.password.digest = BCrypt::Password.create(pw)
+    self.password_digest = BCrypt::Password.create(pw)
   end
 
-  def self.find_by_credentials(email), password)
+  def self.find_by_credentials(email, password)
     user = User.find_by(email: email)
     user && user.is_password?(password) ? user: nil
   end
 
   def is_password?(pw)
-    BCrypt::Password.new(self.password_digest).is_password?(pw)
-
+    BCrypt::Password.new(self.password_digest).is_password?(
   end
 
   def self.generate_session_token
@@ -38,6 +39,6 @@
   end
 
   def ensure_session_token
-    @session_token ||= SecureRandom.urlsafe_base64
+    self.session_token ||= SecureRandom.urlsafe_base64
   end
 end
